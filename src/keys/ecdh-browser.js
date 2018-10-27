@@ -1,12 +1,9 @@
+/* eslint-env browser */
 'use strict'
 
-const webcrypto = require('../webcrypto.js')()
-const nodeify = require('../nodeify')
+const crypto = require('../webcrypto.js')()
 const BN = require('asn1.js').bignum
-
-const util = require('../util')
-const toBase64 = util.toBase64
-const toBn = util.toBn
+const { toBase64, toBn } = require('../util')
 
 const bits = {
   'P-256': 256,
@@ -14,72 +11,66 @@ const bits = {
   'P-521': 521
 }
 
-exports.generateEphmeralKeyPair = function (curve, callback) {
-  nodeify(webcrypto.subtle.generateKey(
+exports.generateEphmeralKeyPair = async function (curve) {
+  const pair = crypto.subtle.generateKey(
     {
       name: 'ECDH',
       namedCurve: curve
     },
     true,
     ['deriveBits']
-  ).then((pair) => {
-    // forcePrivate is used for testing only
-    const genSharedKey = (theirPub, forcePrivate, cb) => {
-      if (typeof forcePrivate === 'function') {
-        cb = forcePrivate
-        forcePrivate = undefined
-      }
+  )
 
-      let privateKey
+  // forcePrivate is used for testing only
+  const genSharedKey = async (theirPub, forcePrivate) => {
+    let privateKey
 
-      if (forcePrivate) {
-        privateKey = webcrypto.subtle.importKey(
-          'jwk',
-          unmarshalPrivateKey(curve, forcePrivate),
-          {
-            name: 'ECDH',
-            namedCurve: curve
-          },
-          false,
-          ['deriveBits']
-        )
-      } else {
-        privateKey = Promise.resolve(pair.privateKey)
-      }
-
-      const keys = Promise.all([
-        webcrypto.subtle.importKey(
-          'jwk',
-          unmarshalPublicKey(curve, theirPub),
-          {
-            name: 'ECDH',
-            namedCurve: curve
-          },
-          false,
-          []
-        ),
-        privateKey
-      ])
-
-      nodeify(keys.then((keys) => webcrypto.subtle.deriveBits(
+    if (forcePrivate) {
+      privateKey = crypto.subtle.importKey(
+        'jwk',
+        unmarshalPrivateKey(curve, forcePrivate),
         {
           name: 'ECDH',
-          namedCurve: curve,
-          public: keys[0]
+          namedCurve: curve
         },
-        keys[1],
-        bits[curve]
-      )).then((bits) => Buffer.from(bits)), cb)
+        false,
+        ['deriveBits']
+      )
+    } else {
+      privateKey = pair.privateKey
     }
 
-    return webcrypto.subtle.exportKey('jwk', pair.publicKey)
-      .then((publicKey) => {
-        return {
-          key: marshalPublicKey(publicKey),
-          genSharedKey
-        }
-      })
-  }), callback)
+    const keys = [
+      crypto.subtle.importKey(
+        'jwk',
+        unmarshalPublicKey(curve, theirPub),
+        {
+          name: 'ECDH',
+          namedCurve: curve
+        },
+        false,
+        []
+      ),
+      privateKey
+    ]
+
+    return Buffer.from(crypto.subtle.deriveBits(
+      {
+        name: 'ECDH',
+        namedCurve: curve,
+        public: keys[0]
+      },
+      keys[1],
+      bits[curve]
+    ))
+  }
+
+  const publicKey = crypto.subtle.exportKey('jwk', pair.publicKey)
+
+  return {
+    key: marshalPublicKey(publicKey),
+    genSharedKey
+  }
 }
 
 const curveLengths = {

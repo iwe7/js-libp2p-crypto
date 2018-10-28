@@ -9,9 +9,11 @@ const expect = chai.expect
 chai.use(dirtyChai)
 chai.use(require('chai-string'))
 
+const isWin = process.platform === 'win32'
 const LIBS = ['ursa', 'keypair']
 
 describe('RSA crypto libs', function () {
+  if (isWin) return
   this.timeout(20 * 1000)
 
   LIBS.forEach(lib => {

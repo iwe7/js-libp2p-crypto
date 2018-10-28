@@ -17,7 +17,6 @@ describe('libp2p-crypto', function () {
   })
 
   it('marshalPublicKey and unmarshalPublicKey', () => {
-    console.log(key.public)
     const key2 = crypto.keys.unmarshalPublicKey(
       crypto.keys.marshalPublicKey(key.public))
 

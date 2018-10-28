@@ -1,7 +1,6 @@
-/* eslint-env browser */
 'use strict'
 
-const crypto = require('../webcrypto.js')()
+const webcrypto = require('../webcrypto.js')()
 const BN = require('asn1.js').bignum
 const { toBase64, toBn } = require('../util')
 
@@ -12,7 +11,7 @@ const bits = {
 }
 
 exports.generateEphmeralKeyPair = async function (curve) {
-  const pair = crypto.subtle.generateKey(
+  const pair = await webcrypto.subtle.generateKey(
     {
       name: 'ECDH',
       namedCurve: curve
@@ -26,7 +25,7 @@ exports.generateEphmeralKeyPair = async function (curve) {
     let privateKey
 
     if (forcePrivate) {
-      privateKey = crypto.subtle.importKey(
+      privateKey = await webcrypto.subtle.importKey(
         'jwk',
         unmarshalPrivateKey(curve, forcePrivate),
         {
@@ -41,7 +40,7 @@ exports.generateEphmeralKeyPair = async function (curve) {
     }
 
     const keys = [
-      crypto.subtle.importKey(
+      await webcrypto.subtle.importKey(
         'jwk',
         unmarshalPublicKey(curve, theirPub),
         {
@@ -54,7 +53,7 @@ exports.generateEphmeralKeyPair = async function (curve) {
       privateKey
     ]
 
-    return Buffer.from(crypto.subtle.deriveBits(
+    return Buffer.from(await webcrypto.subtle.deriveBits(
       {
         name: 'ECDH',
         namedCurve: curve,
@@ -65,7 +64,7 @@ exports.generateEphmeralKeyPair = async function (curve) {
     ))
   }
 
-  const publicKey = crypto.subtle.exportKey('jwk', pair.publicKey)
+  const publicKey = await webcrypto.subtle.exportKey('jwk', pair.publicKey)
 
   return {
     key: marshalPublicKey(publicKey),

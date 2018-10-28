@@ -92,7 +92,7 @@ class Ed25519PrivateKey {
    * The public key is a protobuf encoding containing a type and the DER encoding
    * of the PKCS SubjectPublicKeyInfo.
    *
-   * @returns {String}
+   * @returns {Promise<String>}
    */
   async id () {
     const hash = await this.public.hash()
@@ -100,15 +100,11 @@ class Ed25519PrivateKey {
   }
 }
 
-function unmarshalEd25519PrivateKey (bytes, callback) {
-  try {
-    bytes = ensureKey(bytes, crypto.privateKeyLength + crypto.publicKeyLength)
-  } catch (err) {
-    return callback(err)
-  }
+async function unmarshalEd25519PrivateKey (bytes) {
+  bytes = ensureKey(bytes, crypto.privateKeyLength + crypto.publicKeyLength)
   const privateKeyBytes = bytes.slice(0, crypto.privateKeyLength)
   const publicKeyBytes = bytes.slice(crypto.privateKeyLength, bytes.length)
-  callback(null, new Ed25519PrivateKey(privateKeyBytes, publicKeyBytes))
+  return new Ed25519PrivateKey(privateKeyBytes, publicKeyBytes)
 }
 
 function unmarshalEd25519PublicKey (bytes) {

@@ -3,7 +3,7 @@
 const crypto = require('crypto')
 const lengths = require('./lengths')
 
-exports.create = async function (hash, secret, callback) {
+exports.create = async function (hash, secret) {
   const res = {
     async digest (data) {
       const hmac = crypto.createHmac(hash.toLowerCase(), secret)

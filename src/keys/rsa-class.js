@@ -70,10 +70,6 @@ class RsaPrivateKey {
     return new RsaPublicKey(this._publicKey)
   }
 
-  decrypt (msg, callback) {
-    crypto.decrypt(this._key, msg, callback)
-  }
-
   marshal () {
     return crypto.utils.jwkToPkcs1(this._key)
   }

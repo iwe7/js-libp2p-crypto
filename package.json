@@ -51,7 +51,7 @@
     "ursa-optional": "~0.9.9"
   },
   "devDependencies": {
-    "aegir": "^17.0.1",
+    "aegir": "ipfs/aegir#fix/babel",
     "benchmark": "^2.1.4",
     "bundlesize": "~0.17.0",
     "chai": "^4.2.0",

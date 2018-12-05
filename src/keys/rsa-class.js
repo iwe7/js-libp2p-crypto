@@ -6,7 +6,10 @@ const bs58 = require('bs58')
 
 const crypto = require('./rsa')
 const pbm = protobuf(require('./keys.proto'))
-const forge = require('node-forge')
+require('node-forge/lib/sha512')
+require('node-forge/lib/pbe')
+const forge = require('node-forge/lib/forge')
+
 const setImmediate = require('async/setImmediate')
 
 class RsaPublicKey {
@@ -136,7 +139,6 @@ class RsaPrivateKey {
         const buffer = new forge.util.ByteBuffer(this.marshal())
         const asn1 = forge.asn1.fromDer(buffer)
         const privateKey = forge.pki.privateKeyFromAsn1(asn1)
-
         if (format === 'pkcs-8') {
           const options = {
             algorithm: 'aes256',

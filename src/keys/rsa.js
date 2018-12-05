@@ -1,6 +1,8 @@
 'use strict'
 
 const crypto = require('crypto')
+const randomBytes = require('../random-bytes')
+
 let keypair
 try {
   if (process.env.LP2P_FORCE_CRYPTO_LIB === 'keypair') {
@@ -8,7 +10,7 @@ try {
   }
 
   const ursa = require('ursa-optional') // throws if not compiled
-  keypair = ({bits}) => {
+  keypair = ({ bits }) => {
     const key = ursa.generatePrivateKey(bits)
     return {
       private: key.toPrivatePem(),
@@ -62,9 +64,7 @@ exports.unmarshalPrivateKey = function (key, callback) {
   })
 }
 
-exports.getRandomValues = function (arr) {
-  return crypto.randomBytes(arr.length)
-}
+exports.getRandomValues = randomBytes
 
 exports.hashAndSign = function (key, msg, callback) {
   setImmediate(() => {

@@ -56,7 +56,7 @@ class RsaPrivateKey {
   }
 
   genSecret () {
-    return crypto.getRandomValues(new Uint8Array(16))
+    return crypto.getRandomValues(16)
   }
 
   sign (message, callback) {

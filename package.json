@@ -51,7 +51,7 @@
     "ursa-optional": "~0.9.9"
   },
   "devDependencies": {
-    "aegir": "ipfs/aegir#fix/babel",
+    "aegir": "github:ipfs/aegir#feat/make-exp-build-test-default",
     "benchmark": "^2.1.4",
     "bundlesize": "~0.17.0",
     "chai": "^4.2.0",
